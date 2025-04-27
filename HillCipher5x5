@@ -1,0 +1,173 @@
+import java.util.Scanner;
+
+public class HillCipher5x5 {
+    static final int SIZE = 5; // Matrix size 5x5
+    static int[][] keyMatrix = new int[SIZE][SIZE];
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input the 5x5 key matrix
+        System.out.println("Enter 25 numbers for the 5x5 key matrix (row-wise):");
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                keyMatrix[i][j] = scanner.nextInt();
+            }
+        }
+        scanner.nextLine(); // consume leftover newline
+
+        System.out.print("Enter the plain text: ");
+        String text = scanner.nextLine().toUpperCase().replaceAll("[^A-Z]", "");
+
+        // Pad text to be multiple of 5
+        while (text.length() % SIZE != 0) {
+            text += "X";
+        }
+
+        // Encrypt
+        String encrypted = encrypt(text);
+        System.out.println("Encrypted Text: " + encrypted);
+
+        // Decrypt
+        String decrypted = decrypt(encrypted);
+        System.out.println("Decrypted Text: " + decrypted);
+
+        scanner.close();
+    }
+
+    public static String encrypt(String text) {
+        StringBuilder cipher = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i += SIZE) {
+            int[] vector = new int[SIZE];
+            for (int j = 0; j < SIZE; j++) {
+                vector[j] = text.charAt(i + j) - 'A';
+            }
+
+            for (int row = 0; row < SIZE; row++) {
+                int sum = 0;
+                for (int col = 0; col < SIZE; col++) {
+                    sum += keyMatrix[row][col] * vector[col];
+                }
+                cipher.append((char) ((sum % 26) + 'A'));
+            }
+        }
+
+        return cipher.toString();
+    }
+
+    public static String decrypt(String text) {
+        StringBuilder plain = new StringBuilder();
+        int[][] inverseKey = inverseMatrix(keyMatrix);
+
+        if (inverseKey == null) {
+            return "Inverse matrix not found. Decryption not possible.";
+        }
+
+        for (int i = 0; i < text.length(); i += SIZE) {
+            int[] vector = new int[SIZE];
+            for (int j = 0; j < SIZE; j++) {
+                vector[j] = text.charAt(i + j) - 'A';
+            }
+
+            for (int row = 0; row < SIZE; row++) {
+                int sum = 0;
+                for (int col = 0; col < SIZE; col++) {
+                    sum += inverseKey[row][col] * vector[col];
+                }
+                sum = (sum % 26 + 26) % 26;
+                plain.append((char) (sum + 'A'));
+            }
+        }
+
+        return plain.toString();
+    }
+
+    public static int[][] inverseMatrix(int[][] matrix) {
+        int det = determinant(matrix, SIZE);
+        det = (det % 26 + 26) % 26;
+
+        int detInverse = modInverse(det, 26);
+        if (detInverse == -1) {
+            return null;
+        }
+
+        int[][] adj = adjoint(matrix);
+        int[][] inv = new int[SIZE][SIZE];
+
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                inv[i][j] = (adj[i][j] * detInverse) % 26;
+                if (inv[i][j] < 0) inv[i][j] += 26;
+            }
+        }
+
+        return inv;
+    }
+
+    // You can simplify determinant and adjoint functions based on your 5x5 needs
+    public static int determinant(int[][] matrix, int n) {
+        if (n == 1)
+            return matrix[0][0];
+
+        int det = 0;
+        int[][] temp = new int[SIZE][SIZE];
+        int sign = 1;
+
+        for (int f = 0; f < n; f++) {
+            getCofactor(matrix, temp, 0, f, n);
+            det += sign * matrix[0][f] * determinant(temp, n - 1);
+            sign = -sign;
+        }
+
+        return det;
+    }
+
+    public static void getCofactor(int[][] matrix, int[][] temp, int p, int q, int n) {
+        int i = 0, j = 0;
+
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                if (row != p && col != q) {
+                    temp[i][j++] = matrix[row][col];
+                    if (j == n - 1) {
+                        j = 0;
+                        i++;
+                    }
+                }
+            }
+        }
+    }
+
+    public static int[][] adjoint(int[][] matrix) {
+        int[][] adj = new int[SIZE][SIZE];
+
+        if (SIZE == 1) {
+            adj[0][0] = 1;
+            return adj;
+        }
+
+        int sign = 1;
+        int[][] temp = new int[SIZE][SIZE];
+
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                getCofactor(matrix, temp, i, j, SIZE);
+
+                sign = ((i + j) % 2 == 0) ? 1 : -1;
+
+                adj[j][i] = (sign) * (determinant(temp, SIZE - 1));
+            }
+        }
+
+        return adj;
+    }
+
+    public static int modInverse(int a, int m) {
+        a = a % m;
+        for (int x = 1; x < m; x++) {
+            if ((a * x) % m == 1) return x;
+        }
+        return -1;
+    }
+}
