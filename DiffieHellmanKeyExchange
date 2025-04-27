@@ -1,0 +1,61 @@
+import java.util.Scanner;
+
+public class DiffieHellmanKeyExchange {
+
+    public static void main(String[] args) {
+        // Declare necessary variables
+        Scanner scanner = new Scanner(System.in);
+       
+        // Get input values from the user
+        System.out.print("Enter the value of q: ");
+        long q = scanner.nextLong();
+       
+        System.out.print("Enter the primitive root (alpha): ");
+        long alpha = scanner.nextLong();
+       
+        System.out.print("Enter the private key of user A: ");
+        long XA = scanner.nextLong();
+       
+        System.out.print("Enter the private key of user B: ");
+        long XB = scanner.nextLong();
+
+        // Step 3: Calculate alpha^XA mod q
+        long YA = modPow(alpha, XA, q);
+        System.out.println("Public value for user A (YA) = " + YA);
+
+        // Step 4: Calculate alpha^XB mod q
+        long YB = modPow(alpha, XB, q);
+        System.out.println("Public value for user B (YB) = " + YB);
+
+        // Step 5: Calculate (YB)^XA mod q
+        long sharedKeyA = modPow(YB, XA, q);
+        System.out.println("Shared key computed by user A = " + sharedKeyA);
+
+        // Step 6: Calculate (YA)^XB mod q
+        long sharedKeyB = modPow(YA, XB, q);
+        System.out.println("Shared key computed by user B = " + sharedKeyB);
+
+        // Step 7: Compare values and determine if the shared key is successful
+        if (sharedKeyA == sharedKeyB) {
+            System.out.println("Shared Secret Key is: " + sharedKeyA);
+        } else {
+            System.out.println("The shared key exchange was not successful.");
+        }
+       
+        scanner.close();
+    }
+
+    // Helper function to calculate (base^exp) % mod using modular exponentiation
+    public static long modPow(long base, long exp, long mod) {
+        long result = 1;
+        base = base % mod; // Ensure the base is within mod
+        while (exp > 0) {
+            if (exp % 2 == 1) {
+                result = (result * base) % mod;
+            }
+            exp = exp >> 1;
+            base = (base * base) % mod;
+        }
+        return result;
+    }
+}
