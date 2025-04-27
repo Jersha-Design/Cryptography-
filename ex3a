@@ -1,0 +1,127 @@
+package com.mycompany.ex1acaesar;
+
+
+
+import javax.crypto.Cipher;
+
+
+
+import javax.crypto.KeyGenerator;
+
+import javax.crypto.SecretKey;
+
+import javax.crypto.spec.SecretKeySpec;
+
+import java.util.Scanner;
+
+import java.util.Base64;
+
+public class ex3a {
+
+ public static void main(String[] args) {
+
+ try {
+
+ // Step 1: Get the password from the user
+
+ Scanner scanner = new Scanner(System.in);
+
+ System.out.print("Enter the password: ");
+
+ String password = scanner.nextLine();
+
+ 
+
+ // Step 2: Check password length
+
+ if (password.length() < 8) {
+
+ System.out.println("Invalid password");
+
+ return;
+
+ }
+
+ 
+
+ // Display plain text
+
+ System.out.println("Plain Text: " + password);
+
+ 
+
+ // Step 3: Generate a secret key
+
+ KeyGenerator keyGen = KeyGenerator.getInstance("DES");
+
+ SecretKey secretKey = keyGen.generateKey();
+
+ byte[] key = secretKey.getEncoded();
+
+ 
+
+ // Step 4: Initialize the ciphers
+
+ Cipher encryptCipher = Cipher.getInstance("DES");
+
+ Cipher decryptCipher = Cipher.getInstance("DES");
+
+ SecretKeySpec keySpec = new SecretKeySpec(key, "DES");
+
+ 
+
+ encryptCipher.init(Cipher.ENCRYPT_MODE, keySpec);
+
+ decryptCipher.init(Cipher.DECRYPT_MODE, keySpec);
+
+ 
+
+ // ENCRYPTION
+
+ // Step 5: Convert password to byte array and encrypt 
+
+  byte[] plainTextBytes = password.getBytes();
+
+
+
+ byte[] cipherTextBytes = encryptCipher.doFinal(plainTextBytes);
+
+
+
+ String cipherText = Base64.getEncoder().encodeToString(cipherTextBytes);
+
+ 
+
+ // Step 6: Print the encrypted message
+
+ System.out.println("Cipher Text: " + cipherText);
+
+ 
+
+ // DECRYPTION
+
+ // Step 7: Decrypt the cipher text
+
+ byte[] decryptedBytes = 
+
+decryptCipher.doFinal(Base64.getDecoder().decode(cipherText));
+
+ String decryptedText = new String(decryptedBytes);
+
+ 
+
+ // Step 8: Print the decrypted message
+
+ System.out.println("Decrypted Text: " + decryptedText);
+
+ 
+
+ } catch (Exception e) {
+
+ e.printStackTrace();
+
+ }
+
+ }
+
+}
