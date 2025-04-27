@@ -1,0 +1,67 @@
+import java.util.Scanner;
+
+public class VigenereCipherSimple {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Take input
+        System.out.print("Enter the plain text: ");
+        String text = scanner.nextLine().toUpperCase();
+
+        System.out.print("Enter the key: ");
+        String key = scanner.nextLine().toUpperCase();
+
+        // Encrypt
+        String encryptedText = encrypt(text, key);
+        System.out.println("Encrypted Text: " + encryptedText);
+
+        // Decrypt
+        String decryptedText = decrypt(encryptedText, key);
+        System.out.println("Decrypted Text: " + decryptedText);
+
+        scanner.close();
+    }
+
+    public static String encrypt(String text, String key) {
+        StringBuilder result = new StringBuilder();
+        key = generateKey(text, key);
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+
+            if (Character.isLetter(c)) {
+                int shift = (c - 'A' + key.charAt(i) - 'A') % 26;
+                result.append((char) ('A' + shift));
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+
+    public static String decrypt(String text, String key) {
+        StringBuilder result = new StringBuilder();
+        key = generateKey(text, key);
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+
+            if (Character.isLetter(c)) {
+                int shift = (c - key.charAt(i) + 26) % 26;
+                result.append((char) ('A' + shift));
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+
+    // Generate key equal to text length
+    public static String generateKey(String text, String key) {
+        StringBuilder newKey = new StringBuilder(key);
+        for (int i = 0; newKey.length() < text.length(); i++) {
+            newKey.append(key.charAt(i % key.length()));
+        }
+        return newKey.toString();
+    }
+}
