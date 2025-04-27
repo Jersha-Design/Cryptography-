@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA Algorithm Implementation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>RSA Algorithm Implementation</h1>
+    <div>
+        <label for="p">Enter prime number p:</label>
+        <input type="number" id="p">
+    </div>
+    <div>
+        <label for="q">Enter prime number q:</label>
+        <input type="number" id="q">
+    </div>
+    <button onclick="calculateN()">Calculate n</button>
+    <div>
+        <label for="n">n:</label>
+        <input type="number" id="n" readonly>
+    </div>
+    <button onclick="calculatePhi()">Calculate φ(n)</button>
+    <div>
+        <label for="phi">φ(n):</label>
+        <input type="number" id="phi" readonly>
+    </div>
+    <div>
+        <label for="e">Enter e:</label>
+        <input type="number" id="e">
+    </div>
+    <button onclick="calculateD()">Calculate d</button>
+    <div>
+        <label for="d">d:</label>
+        <input type="number" id="d" readonly>
+    </div>
+    <div>
+        <label for="message">Enter message (as a number):</label>
+        <input type="number" id="message">
+    </div>
+    <button onclick="encrypt()">Encrypt</button>
+    <button onclick="decrypt()">Decrypt</button>
+    <div>
+        <label for="result">Result:</label>
+        <input type="number" id="result" readonly>
+    </div>
+
+    <script>
+        function gcd(a, b) {
+            if (b === 0) return a;
+            return gcd(b, a % b);
+        }
+
+        function modInverse(e, phi) {
+            for (let d = 1; d < phi; d++) {
+                if ((e * d) % phi === 1) {
+                    return d;
+                }
+            }
+            return null;
+        }
+
+        function calculateN() {
+            const p = parseInt(document.getElementById('p').value);
+            const q = parseInt(document.getElementById('q').value);
+            const n = p * q;
+            document.getElementById('n').value = n;
+        }
+
+        function calculatePhi() {
+            const p = parseInt(document.getElementById('p').value);
+            const q = parseInt(document.getElementById('q').value);
+            const phi = (p - 1) * (q - 1);
+            document.getElementById('phi').value = phi;
+        }
+
+        function calculateD() {
+            const e = parseInt(document.getElementById('e').value);
+            const phi = parseInt(document.getElementById('phi').value);
+            const d = modInverse(e, phi);
+            document.getElementById('d').value = d;
+        }
+
+        function encrypt() {
+            const message = parseInt(document.getElementById('message').value);
+            const e = parseInt(document.getElementById('e').value);
+            const n = parseInt(document.getElementById('n').value);
+            const cipherText = BigInt(message) ** BigInt(e) % BigInt(n);
+            document.getElementById('result').value = cipherText.toString();
+        }
+
+        function decrypt() {
+            const cipherText = parseInt(document.getElementById('result').value);
+            const d = parseInt(document.getElementById('d').value);
+            const n = parseInt(document.getElementById('n').value);
+            const plainText = BigInt(cipherText) ** BigInt(d) % BigInt(n);
+            document.getElementById('result').value = plainText.toString();
+        }
+    </script>
+</body>
+</html>
