@@ -1,0 +1,43 @@
+import java.util.Scanner;
+
+public class CaesarCipherSimple {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Get input from user
+        System.out.print("Enter the text: ");
+        String text = scanner.nextLine();
+
+        System.out.print("Enter the shift key (number): ");
+        int shift = scanner.nextInt();
+
+        // Encrypt the text
+        String encryptedText = encrypt(text, shift);
+        System.out.println("Encrypted Text: " + encryptedText);
+
+        // Decrypt the text
+        String decryptedText = decrypt(encryptedText, shift);
+        System.out.println("Decrypted Text: " + decryptedText);
+
+        scanner.close();
+    }
+
+    // Encryption method
+    public static String encrypt(String text, int shift) {
+        StringBuilder result = new StringBuilder();
+
+        for (char c : text.toCharArray()) {
+            if (Character.isLetter(c)) {
+                char base = Character.isLowerCase(c) ? 'a' : 'A';
+                c = (char) ((c - base + shift) % 26 + base);
+            }
+            result.append(c);
+        }
+        return result.toString();
+    }
+
+    // Decryption method
+    public static String decrypt(String text, int shift) {
+        return encrypt(text, 26 - shift); // Reverse the shift
+    }
+}
