@@ -1,0 +1,133 @@
+import java.security.*;
+
+import java.util.Base64;
+
+import java.util.Scanner;
+
+public class DSASignature {
+
+ private PrivateKey privateKey;
+
+ private PublicKey publicKey;
+
+ // Generate DSA key pair
+
+ public void generateKeys() throws Exception {
+
+ KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+
+ keyGen.initialize(2048); // Increased key size for better security
+
+ KeyPair pair = keyGen.generateKeyPair();
+
+ privateKey = pair.getPrivate();
+
+ publicKey = pair.getPublic();
+
+ }
+
+ // Sign a message
+
+ public String signMessage(String message) throws Exception {
+
+ Signature dsa = Signature.getInstance("SHA256withDSA"); // Use SHA-256 
+
+with DSA
+
+ dsa.initSign(privateKey);
+
+ dsa.update(message.getBytes("UTF-8")); // Explicit UTF-8 encoding
+
+ byte[] signature = dsa.sign();
+
+ return Base64.getEncoder().encodeToString(signature);
+
+ }
+// Verify the signature
+
+ public boolean verifySignature(String message, String signatureStr) throws 
+
+Exception {
+
+ Signature dsa = Signature.getInstance("SHA256withDSA"); // Use SHA-256 
+
+with DSA
+
+ dsa.initVerify(publicKey);
+
+ dsa.update(message.getBytes("UTF-8")); // Explicit UTF-8 encoding
+
+ byte[] signature = Base64.getDecoder().decode(signatureStr);
+
+ return dsa.verify(signature);
+
+ }
+
+ public static void main(String[] args) {
+
+ try {
+
+ Scanner scanner = new Scanner(System.in);
+
+ DSASignature dsaSignature = new DSASignature();
+
+ dsaSignature.generateKeys();
+
+ // Prompt for user input: Original message
+
+ System.out.println("Enter the original message to sign:");
+
+ String originalMessage = scanner.nextLine(); // Read the original 
+
+message
+
+ // Sign the original message
+
+ String signature = dsaSignature.signMessage(originalMessage);
+
+ System.out.println("\nSignature Generated for Original Message: " 
+
++ signature);
+
+ // Prompt for user input: Second message (to verify)
+
+ System.out.println("\nEnter the second message to verify (can be 
+
+tampered):");
+
+ String secondMessage = scanner.nextLine(); // Read the second 
+
+message
+// Check if the second message is the same as the original one
+
+ boolean isTampered = !originalMessage.equals(secondMessage);
+
+ // Verify the signature of the second message
+
+ boolean isValid = dsaSignature.verifySignature(secondMessage, 
+
+signature);
+
+ // Output the results
+
+ System.out.println("\nVerification Results:");
+
+ System.out.println("Is the second message tampered? " + 
+
+(isTampered ? "Yes" : "No"));
+
+ System.out.println("Verification Status: " + (isValid ? "Valid 
+
+Signature" : "Invalid Signature"));
+
+ scanner.close(); // Close the scanner to avoid resource leak
+
+ } catch (Exception e) {
+
+ e.printStackTrace();
+
+ }
+
+ }
+
+}
